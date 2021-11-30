@@ -4,7 +4,6 @@ import hashlib
 
 hostname = 'localhost'
 context = ssl.create_default_context()
-global length
 
 
 class Client:
@@ -18,7 +17,6 @@ class Client:
                 print(server_socket.version())
                 f = open(self.file_path)
                 sha256 = hashlib.sha256()
-                global length
                 length = 0
 
                 for _ in range(10):
