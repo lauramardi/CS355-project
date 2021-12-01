@@ -9,19 +9,16 @@ def server():
     server_socket.listen(5)
 
     # Process first request
-    client_socket, address = server_socket.accept()
-    message = client_socket.recv(256)
-    hash1 = message.decode()
+    client_socket1, address1 = server_socket.accept()
+    message1 = client_socket1.recv(2048)
+
 
     # Process second request
-    client_socket, address = server_socket.accept()
-    message = client_socket.recv(256)
-    hash2 = message.decode()
+    client_socket2, address2 = server_socket.accept()
+    message2 = client_socket2.recv(2048)
 
-    if hash1 == hash2:
-        print('The files are the same')
-    else:
-        print('The files are not the same')
+    server_socket.sendto(message1, address2)
+    server_socket.sendto(message2, address1)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
 import socket
 import hashlib
-from Crypto import Random
-import Crypto.Cipher.AES as AES
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Random import get_random_bytes
 
 
 hostname = 'localhost'
@@ -12,8 +13,10 @@ def padding(s):
 
 
 class Client:
-    def __init__(self, file_path):
+    def __init__(self, file_path, public_key, private_key):
         self.file_path = file_path
+        self.public_key = public_key
+        self.private_key = private_key
         self.hash = ''
 
     def send_lines(self):
@@ -32,8 +35,22 @@ class Client:
             sha256.update(line.encode())
 
         self.hash = sha256.hexdigest()
-        en = AESKey.encrypt(padding(self.hash))
-        client_socket.sendall(en.encode())
+
+        # Encrypt the hash
+        recipient_key = RSA.import_key(open(self.public_key).read())
+        session_key = get_random_bytes(16)
+
+        # Encrypt session key with the public key
+        cipher_rsa = PKCS1_OAEP.new(recipient_key)
+        enc_session_key = cipher_rsa.encrypt(session_key)
+
+        # Encrypt plaintext with the session key
+        cipher_aes = AES.new(session_key, AES.MODE_EAX)
+        ciphertext, tag = cipher_aes.encrypt_and_digest(self.hash.encode())
+
+        # Put everything into one string to be sent to the server
+        string = "\n".join([str(enc_session_key), str(cipher_aes.nonce), str(tag), str(ciphertext)])
+        client_socket.sendall(string.encode())
 
     def compare(self, other_hash):
         if self.hash == other_hash:
