@@ -1,9 +1,14 @@
 import socket
-import sys
-import ssl
 import hashlib
+from Crypto import Random
+import Crypto.Cipher.AES as AES
+
 
 hostname = 'localhost'
+
+
+def padding(s):
+    return s + ((16 - len(s) % 16) * '`')
 
 
 class Client:
@@ -27,15 +32,11 @@ class Client:
             sha256.update(line.encode())
 
         self.hash = sha256.hexdigest()
-        client_socket.sendall(self.hash.encode())
+        en = AESKey.encrypt(padding(self.hash))
+        client_socket.sendall(en.encode())
 
     def compare(self, other_hash):
         if self.hash == other_hash:
             return True
         return False
 
-
-def fetch_data(directory):
-    # grab data from specific directory
-    fetch = f.get(directory, None).encode("utf-8")
-    return fetch
