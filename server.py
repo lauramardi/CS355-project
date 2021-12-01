@@ -1,22 +1,27 @@
-import ssl
+import sys
 import socket
-
-context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-context.load_cert_chain('cacert.pem', 'private.key')
 
 
 def server():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as server_socket:
-        server_socket.bind(('127.0.0.1', 8443))
-        server_socket.listen(5)
-        ssl_socket = ssl.wrap_socket(server_socket, keyfile='private.key', certfile='cacert.pem', server_side=True)
-        while True:
-            with context.wrap_socket(server_socket, server_side=True) as client_socket:
-                conn, addr = client_socket.accept()
-                # Read the hash sent by the client
-                message = conn.recv(256).decode()
-                print(message)
-                break
+    # Creating the server socket
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('127.0.0.1', 8000))
+    server_socket.listen(5)
+
+    # Process first request
+    client_socket, address = server_socket.accept()
+    message = client_socket.recv(256)
+    hash1 = message.decode()
+
+    # Process second request
+    client_socket, address = server_socket.accept()
+    message = client_socket.recv(256)
+    hash2 = message.decode()
+
+    if hash1 == hash2:
+        print('The files are the same')
+    else:
+        print('The files are not the same')
 
 
 if __name__ == "__main__":
