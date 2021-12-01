@@ -1,5 +1,6 @@
-import sys
 import socket
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES, PKCS1_OAEP
 
 
 def server():
@@ -10,15 +11,37 @@ def server():
 
     # Process first request
     client_socket1, address1 = server_socket.accept()
-    message1 = client_socket1.recv(2048)
+    enc_session_key_1 = client_socket1.recv(1024)
+    nonce_1 = client_socket1.recv(1024)
+    tag_1 = client_socket1.recv(1024)
+    ciphertext_1 = client_socket1.recv(1024)
 
+    hash1 = decode_message(enc_session_key_1, nonce_1, tag_1, ciphertext_1)
 
     # Process second request
     client_socket2, address2 = server_socket.accept()
-    message2 = client_socket2.recv(2048)
+    enc_session_key_2 = client_socket2.recv(1024)
+    nonce_2 = client_socket2.recv(1024)
+    tag_2 = client_socket2.recv(1024)
+    ciphertext_2 = client_socket2.recv(1024)
 
-    server_socket.sendto(message1, address2)
-    server_socket.sendto(message2, address1)
+    hash2 = decode_message(enc_session_key_2, nonce_2, tag_2, ciphertext_2)
+
+    if hash1 == hash2:
+        print('Files are the same!')
+
+
+def decode_message(enc_session_key, nonce, tag, ciphertext):
+    private_key = RSA.import_key(open("private.pem").read())
+    # Decrypt the session key
+    cipher_rsa = PKCS1_OAEP.new(private_key)
+    session_key = cipher_rsa.decrypt(enc_session_key)
+
+    # Decrypt the data using the session key
+    cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
+    data = cipher_aes.decrypt_and_verify(ciphertext, tag)
+
+    return data
 
 
 if __name__ == "__main__":
