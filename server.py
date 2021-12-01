@@ -11,19 +11,19 @@ def server():
 
     # Process first request
     client_socket1, address1 = server_socket.accept()
-    enc_session_key_1 = client_socket1.recv(1024)
-    nonce_1 = client_socket1.recv(1024)
-    tag_1 = client_socket1.recv(1024)
-    ciphertext_1 = client_socket1.recv(1024)
+    enc_session_key_1 = client_socket1.recv(256)
+    nonce_1 = client_socket1.recv(16)
+    tag_1 = client_socket1.recv(16)
+    ciphertext_1 = client_socket1.recv(64)
 
     hash1 = decode_message(enc_session_key_1, nonce_1, tag_1, ciphertext_1)
 
     # Process second request
     client_socket2, address2 = server_socket.accept()
-    enc_session_key_2 = client_socket2.recv(1024)
-    nonce_2 = client_socket2.recv(1024)
-    tag_2 = client_socket2.recv(1024)
-    ciphertext_2 = client_socket2.recv(1024)
+    enc_session_key_2 = client_socket2.recv(256)
+    nonce_2 = client_socket2.recv(16)
+    tag_2 = client_socket2.recv(16)
+    ciphertext_2 = client_socket2.recv(64)
 
     hash2 = decode_message(enc_session_key_2, nonce_2, tag_2, ciphertext_2)
 

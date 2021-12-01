@@ -35,11 +35,15 @@ class Client:
         # Encrypt session key with the public key
         cipher_rsa = PKCS1_OAEP.new(recipient_key)
         enc_session_key = cipher_rsa.encrypt(session_key)
-        print(len(enc_session_key))
 
         # Encrypt plaintext with the session key
         cipher_aes = AES.new(session_key, AES.MODE_EAX)
         ciphertext, tag = cipher_aes.encrypt_and_digest(self.hash.encode())
+
+        print(len(enc_session_key))
+        print(len(cipher_aes.nonce))
+        print(len(tag))
+        print(len(ciphertext))
 
         self.socket.sendall(enc_session_key)
         self.socket.sendall(cipher_aes.nonce)
