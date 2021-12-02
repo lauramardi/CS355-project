@@ -14,17 +14,22 @@ class Client:
         self.socket.connect(('localhost', 8000))
 
     def send_lines(self):
-        # with context.wrap_socket(client_socket, server_hostname=hostname) as server_socket:
         f = open(self.file_path)
         sha256 = hashlib.sha256()
-        length = 0
+        lines = f.readlines()
 
-        for _ in range(10):
-            line = f.readline()
-            length += len(line)
+        for line in lines:
             if not line:
                 break
             sha256.update(line.encode())
+
+        """for i in range(len(lines)):
+            # Hash the first and last 50 lines of the file to check if they are the same
+            if i in range(0, 50) or i in range(len(lines)-50, len(lines)):
+                line = lines[i]
+                if not line:
+                    break
+                sha256.update(line.encode())"""
 
         self.hash = sha256.hexdigest()
 
@@ -39,11 +44,6 @@ class Client:
         # Encrypt plaintext with the session key
         cipher_aes = AES.new(session_key, AES.MODE_EAX)
         ciphertext, tag = cipher_aes.encrypt_and_digest(self.hash.encode())
-
-        print(len(enc_session_key))
-        print(len(cipher_aes.nonce))
-        print(len(tag))
-        print(len(ciphertext))
 
         self.socket.sendall(enc_session_key)
         self.socket.sendall(cipher_aes.nonce)

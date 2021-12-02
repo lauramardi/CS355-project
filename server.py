@@ -29,6 +29,8 @@ def server():
 
     if hash1 == hash2:
         print('Files are the same!')
+    else:
+        print('The files are not the same')
 
 
 def decode_message(enc_session_key, nonce, tag, ciphertext):
