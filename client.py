@@ -23,14 +23,6 @@ class Client:
                 break
             sha256.update(line.encode())
 
-        """for i in range(len(lines)):
-            # Hash the first and last 50 lines of the file to check if they are the same
-            if i in range(0, 50) or i in range(len(lines)-50, len(lines)):
-                line = lines[i]
-                if not line:
-                    break
-                sha256.update(line.encode())"""
-
         self.hash = sha256.hexdigest()
 
         # Encrypt the hash
@@ -49,8 +41,3 @@ class Client:
         self.socket.sendall(cipher_aes.nonce)
         self.socket.sendall(tag)
         self.socket.sendall(ciphertext)
-
-    def compare(self, other_hash):
-        if self.hash == other_hash:
-            return 1
-        return 0

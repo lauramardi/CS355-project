@@ -35,6 +35,7 @@ def server():
 
 def decode_message(enc_session_key, nonce, tag, ciphertext):
     private_key = RSA.import_key(open("private.pem").read())
+
     # Decrypt the session key
     cipher_rsa = PKCS1_OAEP.new(private_key)
     session_key = cipher_rsa.decrypt(enc_session_key)
