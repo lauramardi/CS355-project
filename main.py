@@ -1,7 +1,7 @@
 from client import Client
 
-alice = Client('Lab3Grading.txt')
+alice = Client('bob.txt', 'public.pem')
 alice.send_lines()
 
-bob = Client('Lab3Grading.txt')
+bob = Client('alice.txt', 'public.pem')
 bob.send_lines()
